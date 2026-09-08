@@ -25,6 +25,46 @@ const supabaseGestion = createClient(
   }
 );
 
+// 🔒 1. Bloquear Clic Derecho en la Web
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});
+
+// 🔒 2. Bloquear Teclas de Inspección (F12, DevTools, Recargar)
+document.addEventListener('keydown', (e) => {
+  const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+  const key = e.key.toLowerCase();
+
+  // Bloquear F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+  }
+  // Bloquear Ctrl+Shift+I / J / C (DevTools, Consola, Inspeccionar)
+  if (isCtrlOrCmd && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+    e.preventDefault();
+  }
+  // Bloquear Ctrl+U (Ver fuente) y Ctrl+S (Guardar página)
+  if (isCtrlOrCmd && ['u', 's'].includes(key)) {
+    e.preventDefault();
+  }
+  // Bloquear F5 y Ctrl+R (Refrescar)
+  if (e.key === 'F5' || (isCtrlOrCmd && key === 'r')) {
+    e.preventDefault();
+  }
+});
+
+// 🔒 3. Anti-Debugger (Invalida la consola si logran abrirla por el menú del navegador)
+setInterval(() => {
+  const t0 = performance.now();
+  debugger;
+  const t1 = performance.now();
+  if (t1 - t0 > 100) {
+    document.body.innerHTML = `
+      <div style="text-align:center; padding:50px; font-family:sans-serif; color:#991B1B;">
+        <h2>Acceso bloqueado por razones de seguridad</h2>
+      </div>`;
+  }
+}, 1000);
 
 module.exports = {
   poolMySQLCampo,
