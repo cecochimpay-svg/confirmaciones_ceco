@@ -965,12 +965,33 @@
       }
     }
 
+    // ESTO LO MODIFIQUE: Detección de sector (Empaque/Hielo vs Cosecha) y carga de plantilla correspondiente
+    const CATS_EMPAQUE_HIELO = [100, 101, 102, 103, 104, 70];
+    let sectorTrabajador = 'COSECHA';
+
+    function determinarSector() {
+      const codCat = Number(operario.Cod_categoria_Tem || operario.Cod_categoria || 0);
+      if (CATS_EMPAQUE_HIELO.includes(codCat)) {
+        sectorTrabajador = 'EMPAQUE';
+      } else {
+        sectorTrabajador = 'COSECHA';
+      }
+      document.getElementById('txtSector').value = sectorTrabajador;
+    }
+
     async function cargarPlantillaTexto() {
       const box = document.getElementById('boxTextoConvocatoria');
+      box.innerHTML = "Cargando texto oficial de convocatoria...";
+
+      determinarSector();
+
       try {
-        const { data: p } = await supabaseClient
+        // Consultar la plantilla específica para el sector del operario
+        const { data: p, error } = await supabaseClient
           .from('plantilla_convocatoria')
           .select('*')
+          .eq('temporada', TEMPORADA_ACTUAL)
+          .eq('sector', sectorTrabajador)
           .eq('activo', true)
           .order('id', { ascending: false })
           .limit(1)
@@ -978,7 +999,7 @@
 
         if (p && p.texto_plantilla) {
           const temporada = p.temporada || TEMPORADA_ACTUAL;
-          const sector = p.sector || 'COSECHA';
+          const sector = p.sector || sectorTrabajador;
           const diario = p.diario || 'diario Río Negro';
           const fechas = p.fechas_publicacion || 'OCTUBRE';
 
@@ -994,11 +1015,13 @@
             .replace(/{DIARIO}/g, `<b>${diario}</b>`)
             .replace(/{FECHAS}/g, `<b>${fechas}</b>`);
         } else {
-          plantillaTextoPlano = "Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO para la temporada de COSECHA...";
+          // Fallback en caso de que no exista registro cargado en la base para ese sector
+          plantillaTextoPlano = `Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO para la temporada de ${sectorTrabajador} año ${TEMPORADA_ACTUAL}, mediante la publicación en el diario Río Negro conforme a lo establecido por la normativa vigente, manifiesto MI VOLUNTAD de trabajar para la presente temporada ${TEMPORADA_ACTUAL} en CECO S.A.`;
           box.innerHTML = plantillaTextoPlano;
         }
       } catch (err) {
-        plantillaTextoPlano = "Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO...";
+        console.warn("Error cargando plantilla remota:", err);
+        plantillaTextoPlano = `Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO para la temporada de ${sectorTrabajador} año ${TEMPORADA_ACTUAL} en CECO S.A.`;
         box.innerHTML = plantillaTextoPlano;
       }
     }
