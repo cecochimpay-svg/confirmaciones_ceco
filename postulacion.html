@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co;" />
+  <title>Postulación Laboral Temporada · CECO S.A.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --color-bg: #F4F6F3;
+      --color-surface: #FFFFFF;
+      --color-plant: #1E6B4C;
+      --color-plant-dark: #123F2C;
+      --color-plant-soft: rgba(30, 107, 76, 0.08);
+      --color-text: #1B231D;
+      --color-text-secondary: #64748B;
+      --color-border: #CBD5E1;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .doc-sheet {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 800px;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-plant);
+      padding-bottom: 12px;
+    }
+
+    .doc-header-left h1 {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      font-size: 20px;
+      color: var(--color-plant-dark);
+      font-weight: 800;
+    }
+
+    .doc-header-left span {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      font-weight: 700;
+    }
+
+    .badge-temporada {
+      background: var(--color-plant-soft);
+      border: 1.5px solid var(--color-plant);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+    }
+
+    .aviso-postulacion {
+      background: #F8FAFC;
+      border-left: 4px solid var(--color-plant);
+      padding: 12px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    .seccion-titulo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid var(--color-border);
+      padding-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-field label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .form-control {
+      padding: 9px 12px;
+      border: 1.2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      background: #FAFAF9;
+      color: var(--color-text);
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-plant);
+      background: #FFFFFF;
+    }
+
+    .form-control[readonly] {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    /* Switch Groups */
+    .preguntas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      background: #FAFAF8;
+      border: 1.2px solid var(--color-border);
+      padding: 14px;
+      border-radius: var(--radius-md);
+    }
+
+    .pregunta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-plant-dark);
+      gap: 8px;
+    }
+
+    .btn-toggle-group {
+      display: flex;
+      border: 1.2px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .btn-toggle {
+      border: none;
+      background: #FFFFFF;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+    }
+
+    .btn-toggle.active {
+      background: var(--color-plant);
+      color: #FFFFFF;
+    }
+
+    .btn-enviar {
+      background: var(--color-plant);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(30, 107, 76, 0.25);
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-enviar:hover {
+      background: var(--color-plant-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-enviar:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .btn-cancelar {
+      background: transparent;
+      color: #64748B;
+      border: 1.2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      width: 100%;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="doc-sheet">
+    <div class="doc-header">
+      <div class="doc-header-left">
+        <h1>CECO S.A.</h1>
+        <span>FICHA DE POSTULACIÓN LABORAL</span>
+      </div>
+      <div class="badge-temporada" id="lblTemporada">Temporada 2026</div>
+    </div>
+
+    <div class="aviso-postulacion">
+      Completá con exactitud tus datos personales, antecedentes de trabajo rural y disponibilidad en la zona. Esta ficha se registrará directamente en el sistema de selección de personal temporario.
+    </div>
+
+    <form id="formPostulacion" onsubmit="enviarPostulacion(event)">
+
+      <!-- Identificación -->
+      <div class="seccion-titulo">1. Datos Personales</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nº DNI *</label>
+          <input type="tel" id="txtDni" class="form-control" readonly required />
+        </div>
+        <div class="form-field">
+          <label>Nº CUIL *</label>
+          <input type="text" id="txtCuil" class="form-control" placeholder="Ej: 20-30123456-7" required />
+        </div>
+        <div class="form-field">
+          <label>Apellido(s) *</label>
+          <input type="text" id="txtApellido" class="form-control" placeholder="Tus apellidos" required />
+        </div>
+        <div class="form-field">
+          <label>Nombre(s) *</label>
+          <input type="text" id="txtNombre" class="form-control" placeholder="Tus nombres" required />
+        </div>
+        <div class="form-field">
+          <label>Fecha de Nacimiento *</label>
+          <input type="date" id="txtFechaNac" class="form-control" onchange="calcularEdad(this.value)" required />
+        </div>
+        <div class="form-field">
+          <label>Edad Calculada</label>
+          <input type="number" id="txtEdad" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Sexo *</label>
+          <select id="selSexo" class="form-control" required>
+            <option value="">Seleccionar...</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+            <option value="X">No binario / Otro</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Teléfono Celular *</label>
+          <input type="tel" id="txtTelefono" class="form-control" placeholder="Ej: 2984123456" required />
+        </div>
+      </div>
+
+      <!-- Residencia -->
+      <div class="seccion-titulo">2. Lugar de Procedencia y Residencia en Zona</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Provincia de Origen *</label>
+          <input type="text" id="txtProvincia" class="form-control" placeholder="Ej: Tucumán, Salta, Río Negro" required />
+        </div>
+        <div class="form-field">
+          <label>Localidad de Origen *</label>
+          <input type="text" id="txtLocalidad" class="form-control" placeholder="Ciudad o Pueblo" required />
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label>Domicilio Legal de Origen</label>
+          <input type="text" id="txtDomicilioOrigen" class="form-control" placeholder="Calle, Barrio o Paraje" />
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label>Domicilio y Localidad en la Zona (Durante Cosecha) *</label>
+          <input type="text" id="txtZona" class="form-control" placeholder="Ej: Chimpay (Chacra 45) / Choele Choel / Darwin" required />
+        </div>
+      </div>
+
+      <!-- Experiencia y Aptitudes -->
+      <div class="seccion-titulo">3. Experiencia y Aptitud Operativa</div>
+      <div class="form-field">
+        <label>Experiencia Laboral Previa (Empresas, Chacras, Cosecha, Poda, Empaque)</label>
+        <textarea id="txtExperiencia" class="form-control" rows="3" placeholder="Detallá si ya trabajaste en cosecha de frutas, empresas anteriores, tareas que realizaste..."></textarea>
+      </div>
+
+      <div class="preguntas-grid" style="margin-top: 10px;">
+        <div class="pregunta-item">
+          <span>¿Tiene experiencia en uso de escalera rural?</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle active" onclick="setToggle('escalera', false, this)">NO</button>
+            <button type="button" class="btn-toggle" onclick="setToggle('escalera', true, this)">SI</button>
+          </div>
+        </div>
+
+        <div class="pregunta-item">
+          <span>¿Posee Carnet de Manipulación de Alimentos / RENATRE?</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle active" onclick="setToggle('carnet', false, this)">NO</button>
+            <button type="button" class="btn-toggle" onclick="setToggle('carnet', true, this)">SI</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px;">
+        <button type="submit" class="btn-enviar" id="btnGuardar">ENVIAR POSTULACIÓN LABORAL</button>
+        <button type="button" class="btn-cancelar" onclick="window.location.href='index.html'">Volver al Inicio</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://zsgqlmfzidazdtpgmuna.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZ3FsbWZ6aWRhemR0cGdtdW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTY3NDIsImV4cCI6MjA5Nzc5Mjc0Mn0.Y9dDHLdQGIOcVS3JaYnbUHWlwul4uiEkkb7udeoF-b0';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let temporadaActual = 2026;
+    let respuestasToggle = { escalera: false, carnet: false };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dniGuardado = sessionStorage.getItem('postulante_dni');
+      const tempGuardada = sessionStorage.getItem('temporada_actual');
+
+      if (!dniGuardado) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      if (tempGuardada) temporadaActual = parseInt(tempGuardada, 10);
+
+      document.getElementById('txtDni').value = dniGuardado;
+      document.getElementById('lblTemporada').innerText = `Temporada ${temporadaActual}`;
+    });
+
+    function setToggle(campo, valor, btn) {
+      respuestasToggle[campo] = valor;
+      btn.parentElement.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function calcularEdad(fechaStr) {
+      if (!fechaStr) return;
+      const nacimiento = new Date(fechaStr);
+      const hoy = new Date();
+      let edad = hoy.getFullYear() - nacimiento.getFullYear();
+      const mes = hoy.getMonth() - nacimiento.getMonth();
+
+      if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+      }
+
+      document.getElementById('txtEdad').value = edad >= 0 ? edad : 0;
+    }
+
+    async function enviarPostulacion(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnGuardar');
+      const edadVal = parseInt(document.getElementById('txtEdad').value, 10);
+
+      if (isNaN(edadVal) || edadVal < 18) {
+        return alert("Debés ser mayor de 18 años para postularte a la temporada.");
+      }
+
+      btn.disabled = true;
+      btn.innerText = "REGISTRANDO POSTULACIÓN...";
+
+      const payload = {
+        temporada: temporadaActual,
+        dni: parseInt(document.getElementById('txtDni').value, 10),
+        cuil: document.getElementById('txtCuil').value.trim(),
+        apellido: document.getElementById('txtApellido').value.trim().toUpperCase(),
+        nombre: document.getElementById('txtNombre').value.trim().toUpperCase(),
+        fecha_nac: document.getElementById('txtFechaNac').value,
+        edad: edadVal,
+        sexo: document.getElementById('selSexo').value,
+        telefono: document.getElementById('txtTelefono').value.trim(),
+        domicilio_origen: document.getElementById('txtDomicilioOrigen').value.trim() || null,
+        localidad: document.getElementById('txtLocalidad').value.trim(),
+        provincia: document.getElementById('txtProvincia').value.trim(),
+        domicilio_localidad_zona: document.getElementById('txtZona').value.trim(),
+        experiencia_laboral: document.getElementById('txtExperiencia').value.trim() || 'Sin experiencia previa declarada',
+        uso_escalera: respuestasToggle.escalera,
+        carnet_alimentos: respuestasToggle.carnet,
+        estado: 'PENDIENTE'
+      };
+
+      try {
+        const { error } = await supabaseClient
+          .from('postulaciones_temporada')
+          .upsert([payload], { onConflict: 'dni,temporada' });
+
+        if (error) throw error;
+
+        alert("✅ ¡Postulación recibida con éxito! Tus datos fueron registrados para el proceso de selección de personal de CECO S.A.");
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+
+      } catch (err) {
+        console.error("Error al guardar postulación:", err);
+        alert("Ocurrió un error al enviar la postulación: " + (err.message || err));
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "ENVIAR POSTULACIÓN LABORAL";
+      }
+    }
+  </script>
+</body>
+</html>

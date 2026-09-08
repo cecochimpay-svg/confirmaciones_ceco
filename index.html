@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co;" />
+  <title>Acceso Personal · CECO S.A. y Postulaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --color-bg: #F4F6F3;
+      --color-surface: #FFFFFF;
+      --color-plant: #1E6B4C;
+      --color-plant-dark: #123F2C;
+      --color-plant-soft: rgba(30, 107, 76, 0.09);
+      --color-text: #1B231D;
+      --color-text-secondary: #64748B;
+      --color-border: #E2E8F0;
+      --radius-card: 22px;
+      --radius-input: 13px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Roboto', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: repeating-linear-gradient(100deg, rgba(30, 107, 76, 0.035) 0px, rgba(30, 107, 76, 0.035) 1.5px, transparent 1.5px, transparent 38px);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-card);
+      padding: 36px 30px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .marca-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .logo-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--color-plant);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      font-family: 'Montserrat', sans-serif;
+      box-shadow: 0 4px 10px rgba(30, 107, 76, 0.25);
+    }
+
+    .login-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+      margin: 0 0 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 0 0 24px;
+      line-height: 1.45;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 7px;
+      letter-spacing: 0.4px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      border-radius: var(--radius-input);
+      border: 1.5px solid var(--color-border);
+      background: #FAFAF9;
+      color: var(--color-text);
+      outline: none;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .form-input:focus {
+      border-color: var(--color-plant);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-plant-soft);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: var(--color-plant);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-input);
+      font-size: 13.5px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(30, 107, 76, 0.25);
+    }
+
+    .btn-login:hover {
+      background: var(--color-plant-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      background-color: #FFFDE7 !important;
+      border: 1px solid #FBC02D !important;
+      color: #D97706 !important;
+      transform: scale(0.98);
+    }
+
+    .alert-box {
+      margin-top: 16px;
+      padding: 11px 14px;
+      border-radius: var(--radius-input);
+      font-size: 12px;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+      line-height: 1.4;
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+    }
+
+    /* Modal Apple Soft para Postulación */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 410px;
+      padding: 30px 24px 24px;
+      border: 1.5px solid var(--color-border);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.16);
+      text-align: center;
+      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-icon-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: #FEF3C7;
+      color: #D97706;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 16px;
+      border: 1px solid #FDE68A;
+    }
+
+    .modal-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+      margin: 0 0 8px;
+    }
+
+    .modal-body-text {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      margin: 0 0 22px;
+    }
+
+    .modal-dni-chip {
+      background: #F1F5F9;
+      color: var(--color-text);
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid var(--color-border);
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .btn-modal-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--color-plant);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-input);
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(30, 107, 76, 0.25);
+      transition: all 0.15s ease;
+    }
+
+    .btn-modal-primary:hover {
+      background: var(--color-plant-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-secondary {
+      width: 100%;
+      padding: 12px;
+      background: #F8FAFC;
+      color: #64748B;
+      border: 1.2px solid var(--color-border);
+      border-radius: var(--radius-input);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-modal-secondary:hover {
+      background: #E2E8F0;
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="marca-header">
+        <div class="logo-box">C</div>
+        <div style="text-align: left;">
+          <div style="font-weight: 800; font-size: 15px; color: var(--color-plant-dark); font-family: 'Montserrat';">CECO S.A.</div>
+          <div style="font-size: 11px; color: var(--color-text-secondary); font-weight: 700;">Convocatoria de Temporada</div>
+        </div>
+      </div>
+
+      <h2 class="login-title">Ingreso de Personal</h2>
+      <p class="login-subtitle">Ingresá tu número de DNI para acceder a tu confirmación o enviar una nueva postulación.</p>
+
+      <form id="formLogin" onsubmit="validarIngreso(event)">
+        <div class="form-group">
+          <label for="inputDni">Documento Nacional de Identidad</label>
+          <input 
+            type="tel" 
+            id="inputDni" 
+            class="form-input" 
+            placeholder="Sin puntos ni espacios" 
+            maxlength="9" 
+            required 
+            autofocus
+          />
+        </div>
+
+        <button type="submit" class="btn-login" id="btnLogin">VERIFICAR DNI</button>
+      </form>
+
+      <div id="alertaMsg" class="alert-box"></div>
+    </div>
+  </div>
+
+  <!-- Modal Suave: Invitación a Postularse -->
+  <div class="modal-overlay" id="modalPostulacion">
+    <div class="modal-card">
+      <div class="modal-icon-badge">📋</div>
+      <h3 class="modal-title">¿Deseas postularte?</h3>
+      <p class="modal-body-text">
+        El DNI <span class="modal-dni-chip" id="lblModalDni">—</span> no figura en la nómina de convocados activos para la <b id="lblModalTemp">Temporada 2026</b>.<br><br>
+        Podés completar tu ficha laboral online para ingresar al proceso de selección de personal temporario.
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-primary" onclick="irAPostulacion()">
+          COMPLETAR FICHA DE POSTULACIÓN
+        </button>
+        <button type="button" class="btn-modal-secondary" onclick="cerrarModal()">
+          Revisar número de DNI
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEMPORADA_ACTUAL = 2026;
+    const SUPABASE_URL = 'https://zsgqlmfzidazdtpgmuna.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZ3FsbWZ6aWRhemR0cGdtdW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTY3NDIsImV4cCI6MjA5Nzc5Mjc0Mn0.Y9dDHLdQGIOcVS3JaYnbUHWlwul4uiEkkb7udeoF-b0';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let dniPendiente = '';
+
+    async function validarIngreso(e) {
+      e.preventDefault();
+      const dniVal = document.getElementById('inputDni').value.trim().replace(/\D/g, '');
+      const btn = document.getElementById('btnLogin');
+      const alerta = document.getElementById('alertaMsg');
+
+      alerta.style.display = 'none';
+
+      if (!dniVal || dniVal.length < 7) {
+        mostrarAlerta("Ingresá un número de DNI válido.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "VERIFICANDO...";
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('nomina_personal_tempo')
+          .select('*')
+          .eq('dni', parseInt(dniVal, 10))
+          .eq('estado', 'ACTI')
+          .eq('temporada', TEMPORADA_ACTUAL)
+          .limit(1);
+
+        if (error) throw error;
+
+        // No figura en la nómina activa: abrir modal suave
+        if (!data || data.length === 0) {
+          dniPendiente = dniVal;
+          document.getElementById('lblModalDni').innerText = dniVal;
+          document.getElementById('lblModalTemp').innerText = `Temporada ${TEMPORADA_ACTUAL}`;
+          document.getElementById('modalPostulacion').style.display = 'flex';
+
+          btn.disabled = false;
+          btn.innerText = "VERIFICAR DNI";
+          return;
+        }
+
+        // Operario activo: redirigir a confirmación
+        const operarioData = data[0];
+        sessionStorage.setItem('operario_tempo', JSON.stringify(operarioData));
+        sessionStorage.setItem('temporada_actual', TEMPORADA_ACTUAL);
+
+        window.location.href = 'confirmacion.html';
+
+      } catch (err) {
+        console.error("Error al verificar:", err);
+        mostrarAlerta("Error al consultar la base de datos: " + (err.message || err));
+        btn.disabled = false;
+        btn.innerText = "VERIFICAR DNI";
+      }
+    }
+
+    function irAPostulacion() {
+      sessionStorage.setItem('postulante_dni', dniPendiente);
+      sessionStorage.setItem('temporada_actual', TEMPORADA_ACTUAL);
+      window.location.href = 'postulacion.html';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalPostulacion').style.display = 'none';
+      const input = document.getElementById('inputDni');
+      input.focus();
+      input.select();
+    }
+
+    function mostrarAlerta(msg) {
+      const alerta = document.getElementById('alertaMsg');
+      alerta.innerText = msg;
+      alerta.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

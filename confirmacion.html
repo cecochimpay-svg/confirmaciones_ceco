@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co;" />
+  <title>Confirmación de Puesto · CECO S.A.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+
+  <style>
+    :root {
+      --color-bg: #F4F6F3;
+      --color-surface: #FFFFFF;
+      --color-plant: #1E6B4C;
+      --color-plant-dark: #123F2C;
+      --color-plant-soft: rgba(30, 107, 76, 0.08);
+      --color-text: #1B231D;
+      --color-text-secondary: #64748B;
+      --color-border: #CBD5E1;
+      --color-alert-bg: #FEF3C7;
+      --color-alert-border: #F59E0B;
+      --color-alert-text: #92400E;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .doc-sheet {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 840px;
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Encabezado con Logo 1.5cm x 1.5cm */
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-plant);
+      padding-bottom: 12px;
+      gap: 10px;
+    }
+
+    .doc-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-header-img {
+      width: 1.5cm;
+      height: 1.5cm;
+      object-fit: contain;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .doc-header-left h1 {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      font-size: 20px;
+      color: var(--color-plant-dark);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .doc-header-left span {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      font-weight: 700;
+    }
+
+    .badge-legajo {
+      background: #F1F5F9;
+      border: 1.5px solid var(--color-border);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+      white-space: nowrap;
+    }
+
+    .texto-convocatoria-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--color-plant);
+      padding: 14px 16px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #334155;
+      text-align: justify;
+    }
+
+    .alerta-provincia-ext {
+      background: var(--color-alert-bg);
+      border: 1.5px solid var(--color-alert-border);
+      color: var(--color-alert-text);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .seccion-titulo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--color-plant-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid var(--color-border);
+      padding-bottom: 4px;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-field label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .form-control {
+      padding: 9px 12px;
+      border: 1.2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      background: #FAFAF9;
+      color: var(--color-text);
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-plant);
+      background: #FFFFFF;
+    }
+
+    .form-control[readonly] {
+      background: #F1F5F9;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .campo-requerido-zona {
+      border-color: #F59E0B !important;
+      background: #FFFDF5 !important;
+    }
+
+    .box-switch-domicilio {
+      background: #EFF6FF;
+      border: 1.2px dashed #93C5FD;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .preguntas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      background: #FAFAF8;
+      border: 1.2px solid var(--color-border);
+      padding: 14px;
+      border-radius: var(--radius-md);
+    }
+
+    .pregunta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-plant-dark);
+      gap: 8px;
+    }
+
+    .btn-toggle-group {
+      display: flex;
+      border: 1.2px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .btn-toggle {
+      border: none;
+      background: #FFFFFF;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+    }
+
+    .btn-toggle.active {
+      background: var(--color-plant);
+      color: #FFFFFF;
+    }
+
+    .btn-toggle.active-blue {
+      background: #2563EB !important;
+      color: #FFFFFF !important;
+    }
+
+    .firma-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .canvas-box {
+      border: 1.5px dashed var(--color-plant);
+      border-radius: var(--radius-md);
+      background: #FAFAF8;
+      width: 100%;
+      max-width: 440px;
+      height: 160px;
+      position: relative;
+      touch-action: none;
+    }
+
+    #canvasFirma {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .guia-firma {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      right: 20px;
+      border-bottom: 1px dashed #CBD5E1;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #94A3B8;
+      pointer-events: none;
+      text-transform: uppercase;
+      padding-bottom: 2px;
+    }
+
+    .btn-enviar {
+      background: var(--color-plant);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(30, 107, 76, 0.25);
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-enviar:hover {
+      background: var(--color-plant-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-enviar:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    /* Modal de Alerta Suave */
+    .modal-aviso-soft {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 6000;
+      padding: 16px;
+    }
+
+    .modal-aviso-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1.5px solid var(--color-border);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+      animation: aparecer 0.2s ease forwards;
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Modal Especial: Trabajador Ya Confirmó */
+    .modal-ya-confirmo-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(7px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5500;
+      padding: 16px;
+    }
+
+    .modal-ya-confirmo-card {
+      background: #FFFFFF;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 440px;
+      padding: 30px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22);
+      border: 1.5px solid var(--color-border);
+      animation: aparecer 0.22s ease forwards;
+    }
+
+    .btn-modal-accion {
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-descargar-verde {
+      background: var(--color-plant);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(30, 107, 76, 0.25);
+    }
+    .btn-descargar-verde:hover { background: var(--color-plant-dark); }
+    .btn-actualizar-azul {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1.2px solid #BFDBFE;
+    }
+    .btn-actualizar-azul:hover { background: #DBEAFE; }
+
+    .modal-overlay-exito {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+      padding: 16px;
+    }
+
+    .modal-exito-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-descarga-grande {
+      background: var(--color-plant);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px 20px;
+      font-size: 13.5px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(30, 107, 76, 0.25);
+    }
+
+    .footer-nota {
+      font-size: 10.5px;
+      color: var(--color-text-secondary);
+      text-align: center;
+      line-height: 1.5;
+      border-top: 1px solid var(--color-border);
+      padding-top: 10px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="doc-sheet">
+    <!-- Encabezado con Logo 1.5cm x 1.5cm a la izquierda -->
+    <div class="doc-header">
+      <div class="doc-header-left">
+        <img src="logo.png" alt="CECO S.A." class="logo-header-img" onerror="this.onerror=null; this.src='../logo.png';" />
+        <div>
+          <h1>CECO S.A.</h1>
+          <span>CONFIRMACIÓN DE PUESTO DE TRABAJO</span>
+        </div>
+      </div>
+      <div class="badge-legajo" id="lblLegajo">Nº Legajo: —</div>
+    </div>
+
+    <!-- Alerta dinámica si no es de Río Negro -->
+    <div class="alerta-provincia-ext" id="alertaOtraProvincia">
+      <span style="font-size: 18px;">⚠️</span>
+      <div>
+        <b>Atención trabajador procedente de otra provincia:</b><br>
+        Al provenir de fuera de Río Negro, es <u>obligatorio</u> que denuncies el domicilio o gamela/chacra y localidad donde te alojarás en la zona durante la cosecha.
+      </div>
+    </div>
+
+    <!-- Texto de convocatoria legal -->
+    <div class="texto-convocatoria-box" id="boxTextoConvocatoria">
+      Cargando convocatoria oficial...
+    </div>
+
+    <form id="formConfirmacion" onsubmit="guardarDeclaracion(event)">
+      
+      <!-- 1. Datos Personales -->
+      <div class="seccion-titulo">1. Datos del Trabajador</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Apellido y Nombre</label>
+          <input type="text" id="txtNombre" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Nº DNI</label>
+          <input type="text" id="txtDni" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>CUIL</label>
+          <input type="text" id="txtCuil" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Sector Convocado</label>
+          <input type="text" id="txtSector" class="form-control" value="COSECHA" readonly />
+        </div>
+      </div>
+
+      <!-- 2. Domicilio Declarado con selector de actualización -->
+      <div class="seccion-titulo">
+        <span>2. Domicilio Declarado / Origen</span>
+      </div>
+
+      <div class="box-switch-domicilio">
+        <div style="font-size: 11.5px; font-weight: 700; color: #1E3A8A;">
+          📍 ¿Deseas actualizar o corregir tu domicilio declarado?
+        </div>
+        <div class="btn-toggle-group">
+          <button type="button" class="btn-toggle active" id="btnDomNo" onclick="toggleEditarDomicilio(false)">NO</button>
+          <button type="button" class="btn-toggle" id="btnDomSi" onclick="toggleEditarDomicilio(true)">SÍ, ACTUALIZAR</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field" style="grid-column: span 2;">
+          <label id="lblTxtDomicilio">Domicilio Declarado</label>
+          <input type="text" id="txtDomicilio" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label id="lblTxtLocalidad">Localidad</label>
+          <input type="text" id="txtLocalidad" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Provincia de Origen</label>
+          <input type="text" id="txtProvincia" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Código Postal</label>
+          <input type="text" id="txtCP" class="form-control" readonly />
+        </div>
+      </div>
+
+      <!-- 3. Domicilio en la Zona -->
+      <div class="seccion-titulo" id="tituloZona">3. Domicilio en la Zona durante la Cosecha</div>
+      <div class="form-grid" id="seccionZona">
+        <div class="form-field" style="grid-column: span 2;">
+          <label id="lblDomZona">Domicilio en la Zona (Calle, Chacra, Gamela o Barrio) *</label>
+          <input type="text" id="txtDomicilioZona" class="form-control" placeholder="Ej: Chacra 45 CECO / Barrio San Martín" />
+        </div>
+        <div class="form-field">
+          <label id="lblLocZona">Localidad en Río Negro *</label>
+          <input type="text" id="txtLocalidadZona" class="form-control" placeholder="Ej: Chimpay, Choele Choel, Darwin" />
+        </div>
+      </div>
+
+      <!-- 4. Contactos Telefónicos -->
+      <div class="seccion-titulo">4. Contactos Telefónicos para Notificación</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Teléfono Registrado</label>
+          <input type="tel" id="txtTelRegistrado" class="form-control" readonly />
+        </div>
+        <div class="form-field">
+          <label>Teléfono Particular Nuevo (Si cambió)</label>
+          <input type="tel" id="txtTelNuevo" class="form-control" placeholder="Ej: 2984123456" />
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label>Teléfono Alternativo (Familiar, Vecino o Encargado) *</label>
+          <input type="tel" id="txtTelAlternativo" class="form-control" placeholder="Obligatorio para avisos de inicio de cosecha" required />
+        </div>
+      </div>
+
+      <!-- 5. Datos Bancarios y Certificaciones -->
+      <div class="seccion-titulo">5. Declaración Bancaria y Carnets</div>
+      <div class="preguntas-grid">
+        <div class="pregunta-item">
+          <span>Presentó Carnet RENATRE / Manip. Alimentos:</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle" id="btnCarnetNo" onclick="setToggle('carnet', false, this)">NO</button>
+            <button type="button" class="btn-toggle active" id="btnCarnetSi" onclick="setToggle('carnet', true, this)">SI</button>
+          </div>
+        </div>
+
+        <div class="pregunta-item">
+          <span>Declaro contar Tarjeta Patagonia de CECO:</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle" id="btnTarjetaNo" onclick="setToggle('tarjetaCeco', false, this)">NO</button>
+            <button type="button" class="btn-toggle active" id="btnTarjetaSi" onclick="setToggle('tarjetaCeco', true, this)">SI</button>
+          </div>
+        </div>
+
+        <div class="pregunta-item">
+          <span>Declaro que la misma se encuentra ACTIVA:</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle" id="btnActivaNo" onclick="setToggle('tarjetaActiva', false, this)">NO</button>
+            <button type="button" class="btn-toggle active" id="btnActivaSi" onclick="setToggle('tarjetaActiva', true, this)">SI</button>
+          </div>
+        </div>
+
+        <div class="pregunta-item">
+          <span>¿La cuenta bancaria es Propia?:</span>
+          <div class="btn-toggle-group">
+            <button type="button" class="btn-toggle" id="btnCuentaNo" onclick="setToggle('cuentaPropia', false, this)">NO</button>
+            <button type="button" class="btn-toggle active" id="btnCuentaSi" onclick="setToggle('cuentaPropia', true, this)">SI</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top: 10px;">
+        <div class="form-field">
+          <label>Entidad Bancaria</label>
+          <input type="text" id="txtBanco" class="form-control" value="BANCO PATAGONIA" />
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label>Número de CBU / Alias</label>
+          <input type="text" id="txtCbu" class="form-control" placeholder="22 dígitos del CBU" maxlength="22" />
+        </div>
+      </div>
+
+      <!-- 6. Firma en Pantalla -->
+      <div class="seccion-titulo">6. Firma del Trabajador (En Pantalla)</div>
+      <div class="firma-section">
+        <div class="canvas-box" id="canvasBox">
+          <canvas id="canvasFirma"></canvas>
+          <div class="guia-firma" id="lblGuiaFirma">Firmar aquí con el dedo o mouse</div>
+        </div>
+        <button type="button" onclick="limpiarFirma()" style="background:none; border:none; color:var(--color-plant); font-weight:700; font-size:11px; cursor:pointer;">
+          🔄 Limpiar Trazo
+        </button>
+      </div>
+
+      <div style="margin-top: 18px;">
+        <button type="submit" class="btn-enviar" id="btnGuardar">
+          CONFIRMAR Y DESCARGAR CONSTANCIA
+        </button>
+      </div>
+
+    </form>
+
+    <div class="footer-nota">
+      CECO S.A. © 2008 | Establecimiento: Ruta Nacional 22 Km. 1050 | Chimpay | Río Negro | Patagonia Argentina<br>
+      Administración: San Martín 85 | 1° Piso Neuquén Capital
+    </div>
+  </div>
+
+  <!-- ACA ES LO NUEVO: Modal Suave cuando el trabajador ya confirmó su puesto previamente -->
+  <div class="modal-ya-confirmo-overlay" id="modalYaConfirmo">
+    <div class="modal-ya-confirmo-card">
+      <div style="font-size: 42px;">📋</div>
+      <h3 style="margin: 0; font-family: 'Montserrat'; font-size: 18px; color: var(--color-plant-dark);">
+        Puesto Ya Confirmado
+      </h3>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.55;" id="lblTextoYaConfirmo">
+        Ya registraste tu confirmación para esta temporada. Podés descargar tu comprobante firmado o actualizar tus datos y volver a firmar.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <button type="button" class="btn-modal-accion btn-descargar-verde" onclick="descargarComprobanteExistente()">
+          ⬇️ Descargar Comprobante PDF
+        </button>
+        <button type="button" class="btn-modal-accion btn-actualizar-azul" onclick="habilitarModoActualizacion()">
+          ✏️ Actualizar Datos de Confirmación
+        </button>
+      </div>
+
+      <button type="button" onclick="cerrarYSalir()" style="background: transparent; border: none; font-size: 11.5px; font-weight: 700; color: #94A3B8; cursor: pointer; margin-top: 4px;">
+        Volver al Inicio
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Soft de Notificaciones / Alertas -->
+  <div class="modal-aviso-soft" id="modalAviso">
+    <div class="modal-aviso-card">
+      <div id="modalAvisoIcono" style="font-size: 34px;">⚠️</div>
+      <h3 id="modalAvisoTitulo" style="margin: 0; font-family: 'Montserrat'; font-size: 16px; color: var(--color-plant-dark);">
+        Atención
+      </h3>
+      <p id="modalAvisoTexto" style="margin: 0; font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.5;"></p>
+      <button type="button" class="btn-enviar" onclick="cerrarAvisoSoft()" style="padding: 10px; font-size: 12px; margin-top: 6px;">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Emergente de Éxito y Descarga -->
+  <div class="modal-overlay-exito" id="modalExito">
+    <div class="modal-exito-card">
+      <div style="font-size: 44px;">✅</div>
+      <h3 style="margin: 0; font-family: 'Montserrat'; color: var(--color-plant-dark); font-size: 18px;">
+        ¡Puesto Confirmado!
+      </h3>
+      <p style="font-size: 12.5px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">
+        Tu confirmación de temporada ha sido registrada en el sistema. Se ha generado tu comprobante oficial firmado.
+      </p>
+
+      <a id="lnkDescargaManual" class="btn-descarga-grande" href="#" download>
+        ⬇️ Descargar Comprobante PDF
+      </a>
+
+      <button type="button" onclick="cerrarYSalir()" style="background: #F1F5F9; border: none; padding: 11px; border-radius: var(--radius-md); font-weight: 700; font-size: 12px; cursor: pointer; color: #475569;">
+        Salir al Inicio
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const TEMPORADA_ACTUAL = 2026;
+    const SUPABASE_URL = 'https://zsgqlmfzidazdtpgmuna.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZ3FsbWZ6aWRhemR0cGdtdW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTY3NDIsImV4cCI6MjA5Nzc5Mjc0Mn0.Y9dDHLdQGIOcVS3JaYnbUHWlwul4uiEkkb7udeoF-b0';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let operario = null;
+    let esDeRioNegro = true;
+    let domicilioModificado = false;
+    let confirmacionExistente = null;
+    let plantillaTextoPlano = '';
+    let respuestasToggle = { carnet: true, tarjetaCeco: true, tarjetaActiva: true, cuentaPropia: true };
+
+    let canvas, ctx, dibujando = false, trazoRealizado = false;
+
+    function mostrarAvisoSoft(titulo, texto, icono = '⚠️') {
+      document.getElementById('modalAvisoIcono').innerText = icono;
+      document.getElementById('modalAvisoTitulo').innerText = titulo;
+      document.getElementById('modalAvisoTexto').innerText = texto;
+      document.getElementById('modalAviso').style.display = 'flex';
+    }
+
+    function cerrarAvisoSoft() {
+      document.getElementById('modalAviso').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const dataStr = sessionStorage.getItem('operario_tempo');
+      if (!dataStr) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      operario = JSON.parse(dataStr);
+      evaluarProvinciaYPrecargar();
+      cargarPlantillaTexto();
+      inicializarCanvas();
+
+      // ACA ES LO NUEVO: Verificar si ya existe confirmación previa
+      await verificarSiYaConfirmo();
+    });
+
+    // =========================================================================
+    // ACA ES LO NUEVO: VERIFICACIÓN Y GESTIÓN DE CONFIRMACIÓN EXISTENTE
+    // =========================================================================
+    async function verificarSiYaConfirmo() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('confirmaciones_temporada')
+          .select('*')
+          .eq('dni', operario.dni)
+          .eq('temporada', TEMPORADA_ACTUAL)
+          .maybeSingle();
+
+        if (!error && data) {
+          confirmacionExistente = data;
+          const fechaStr = data.fecha_confirmacion 
+            ? new Date(data.fecha_confirmacion).toLocaleDateString('es-AR')
+            : '';
+
+          document.getElementById('lblTextoYaConfirmo').innerHTML = `
+            Hola <b>${operario.nombre || operario.apellido}</b>, ya registraste tu confirmación el día <b>${fechaStr}</b>.<br><br>
+            ¿Qué deseas realizar?
+          `;
+          document.getElementById('modalYaConfirmo').style.display = 'flex';
+        }
+      } catch (e) {
+        console.warn("No se pudo verificar confirmación existente:", e);
+      }
+    }
+
+    // Descargar el PDF que el operario ya firmó
+    async function descargarComprobanteExistente() {
+      if (!confirmacionExistente || !confirmacionExistente.pdf_path) {
+        return mostrarAvisoSoft("Sin archivo", "No se encontró el archivo firmado en el servidor.", "📁");
+      }
+
+      try {
+        const { data, error } = await supabaseClient.storage
+          .from('recibos')
+          .download(confirmacionExistente.pdf_path);
+
+        if (error) throw error;
+
+        const blobUrl = URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `Confirmacion_${operario.legajo}_${operario.dni}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+
+      } catch (err) {
+        mostrarAvisoSoft("Error de Descarga", "No se pudo descargar el archivo: " + err.message, "❌");
+      }
+    }
+
+    // Cerrar modal y rellenar el formulario con los datos que ya había guardado
+    function habilitarModoActualizacion() {
+      document.getElementById('modalYaConfirmo').style.display = 'none';
+
+      if (!confirmacionExistente) return;
+
+      // Llenar campos con los valores previos guardados
+      if (confirmacionExistente.telefono_nuevo) {
+        document.getElementById('txtTelNuevo').value = confirmacionExistente.telefono_nuevo;
+      }
+      if (confirmacionExistente.telefono_alternativo) {
+        document.getElementById('txtTelAlternativo').value = confirmacionExistente.telefono_alternativo;
+      }
+      if (confirmacionExistente.entidad_bancaria) {
+        document.getElementById('txtBanco').value = confirmacionExistente.entidad_bancaria;
+      }
+      if (confirmacionExistente.cbu) {
+        document.getElementById('txtCbu').value = confirmacionExistente.cbu;
+      }
+
+      // Restablecer toggles
+      actualizarToggleUI('carnet', Boolean(confirmacionExistente.carnet_renatre), 'btnCarnetSi', 'btnCarnetNo');
+      actualizarToggleUI('tarjetaCeco', Boolean(confirmacionExistente.tarjeta_patagonia), 'btnTarjetaSi', 'btnTarjetaNo');
+      actualizarToggleUI('tarjetaActiva', Boolean(confirmacionExistente.tarjeta_activa), 'btnActivaSi', 'btnActivaNo');
+      actualizarToggleUI('cuentaPropia', Boolean(confirmacionExistente.cuenta_propia), 'btnCuentaSi', 'btnCuentaNo');
+
+      document.getElementById('btnGuardar').innerText = "ACTUALIZAR Y FIRMAR DECLARACIÓN";
+    }
+
+    function actualizarToggleUI(campo, valor, idSi, idNo) {
+      respuestasToggle[campo] = valor;
+      const bSi = document.getElementById(idSi);
+      const bNo = document.getElementById(idNo);
+      if (valor) {
+        bSi.classList.add('active');
+        bNo.classList.remove('active');
+      } else {
+        bNo.classList.add('active');
+        bSi.classList.remove('active');
+      }
+    }
+
+    // =========================================================================
+    // CONMUTADOR DOMICILIO DECLARADO
+    // =========================================================================
+    function toggleEditarDomicilio(habilitar) {
+      domicilioModificado = habilitar;
+      const btnSi = document.getElementById('btnDomSi');
+      const btnNo = document.getElementById('btnDomNo');
+      const inDom = document.getElementById('txtDomicilio');
+      const inLoc = document.getElementById('txtLocalidad');
+      const inCP = document.getElementById('txtCP');
+
+      if (habilitar) {
+        btnSi.classList.add('active-blue');
+        btnNo.classList.remove('active');
+        inDom.readOnly = false;
+        inLoc.readOnly = false;
+        inCP.readOnly = false;
+        inDom.style.background = "#FFFFFF";
+        inLoc.style.background = "#FFFFFF";
+        inCP.style.background = "#FFFFFF";
+        inDom.focus();
+      } else {
+        btnNo.classList.add('active');
+        btnSi.classList.remove('active-blue');
+        inDom.readOnly = true;
+        inLoc.readOnly = true;
+        inCP.readOnly = true;
+        inDom.style.background = "#F1F5F9";
+        inLoc.style.background = "#F1F5F9";
+        inCP.style.background = "#F1F5F9";
+        inDom.value = operario.domicilio || operario.domicilio_Not || '';
+        inLoc.value = operario.localidad || operario.localidad_Not || '';
+        inCP.value = operario.Cod_Postal || operario.Cod_Postal_Not || '';
+      }
+    }
+
+    function evaluarProvinciaYPrecargar() {
+      document.getElementById('lblLegajo').innerText = `Nº Legajo: ${operario.legajo}`;
+      document.getElementById('txtNombre').value = `${operario.apellido || ''}, ${operario.nombre || ''}`.trim();
+      document.getElementById('txtDni').value = operario.dni;
+      document.getElementById('txtCuil').value = operario.cuil || '-';
+      document.getElementById('txtDomicilio').value = operario.domicilio || operario.domicilio_Not || '';
+      document.getElementById('txtLocalidad').value = operario.localidad || operario.localidad_Not || '';
+
+      const provRaw = (operario.Provincia || operario.Provincia_Not || 'RIO NEGRO').trim();
+      document.getElementById('txtProvincia').value = provRaw;
+      document.getElementById('txtCP').value = operario.Cod_Postal || operario.Cod_Postal_Not || '';
+      document.getElementById('txtTelRegistrado').value = operario.Nro_tel || '-';
+
+      const provNormalizada = provRaw.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      esDeRioNegro = (provNormalizada === 'RIO NEGRO' || provNormalizada === 'RN');
+
+      if (!esDeRioNegro) {
+        document.getElementById('alertaOtraProvincia').style.display = 'flex';
+        document.getElementById('txtDomicilioZona').classList.add('campo-requerido-zona');
+        document.getElementById('txtLocalidadZona').classList.add('campo-requerido-zona');
+        document.getElementById('txtDomicilioZona').required = true;
+        document.getElementById('txtLocalidadZona').required = true;
+      } else {
+        document.getElementById('txtDomicilioZona').value = document.getElementById('txtDomicilio').value;
+        document.getElementById('txtLocalidadZona').value = document.getElementById('txtLocalidad').value;
+      }
+    }
+
+    async function cargarPlantillaTexto() {
+      const box = document.getElementById('boxTextoConvocatoria');
+      try {
+        const { data: p } = await supabaseClient
+          .from('plantilla_convocatoria')
+          .select('*')
+          .eq('activo', true)
+          .order('id', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (p && p.texto_plantilla) {
+          const temporada = p.temporada || TEMPORADA_ACTUAL;
+          const sector = p.sector || 'COSECHA';
+          const diario = p.diario || 'diario Río Negro';
+          const fechas = p.fechas_publicacion || 'OCTUBRE';
+
+          plantillaTextoPlano = p.texto_plantilla
+            .replace(/{TEMPORADA}/g, temporada)
+            .replace(/{SECTOR}/g, sector)
+            .replace(/{DIARIO}/g, diario)
+            .replace(/{FECHAS}/g, fechas);
+
+          box.innerHTML = p.texto_plantilla
+            .replace(/{TEMPORADA}/g, `<b>${temporada}</b>`)
+            .replace(/{SECTOR}/g, `<b>${sector}</b>`)
+            .replace(/{DIARIO}/g, `<b>${diario}</b>`)
+            .replace(/{FECHAS}/g, `<b>${fechas}</b>`);
+        } else {
+          plantillaTextoPlano = "Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO para la temporada de COSECHA...";
+          box.innerHTML = plantillaTextoPlano;
+        }
+      } catch (err) {
+        plantillaTextoPlano = "Habiéndose realizado la convocatoria para CONFIRMAR PUESTO DE TRABAJO...";
+        box.innerHTML = plantillaTextoPlano;
+      }
+    }
+
+    function setToggle(campo, valor, btn) {
+      respuestasToggle[campo] = valor;
+      btn.parentElement.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function inicializarCanvas() {
+      canvas = document.getElementById('canvasFirma');
+      ctx = canvas.getContext('2d');
+
+      function ajustar() {
+        const box = document.getElementById('canvasBox');
+        const rect = box.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        ctx.strokeStyle = '#0F172A';
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+
+      ajustar();
+      window.addEventListener('resize', ajustar);
+
+      canvas.addEventListener('mousedown', (e) => iniciar(e.clientX, e.clientY));
+      canvas.addEventListener('mousemove', (e) => mover(e.clientX, e.clientY));
+      window.addEventListener('mouseup', parar);
+
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          e.preventDefault();
+          iniciar(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+          e.preventDefault();
+          mover(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', parar);
+    }
+
+    function getCoords(cx, cy) {
+      const r = canvas.getBoundingClientRect();
+      return { x: cx - r.left, y: cy - r.top };
+    }
+
+    function iniciar(cx, cy) {
+      dibujando = true;
+      trazoRealizado = true;
+      document.getElementById('lblGuiaFirma').style.opacity = '0.2';
+      const p = getCoords(cx, cy);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+
+    function mover(cx, cy) {
+      if (!dibujando) return;
+      const p = getCoords(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    function parar() {
+      if (dibujando) {
+        ctx.closePath();
+        dibujando = false;
+      }
+    }
+
+    function limpiarFirma() {
+      const box = document.getElementById('canvasBox');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      trazoRealizado = false;
+      document.getElementById('lblGuiaFirma').style.opacity = '1';
+    }
+
+    // =========================================================================
+    // GENERADOR PDF CON LOGO 1.5cm x 1.5cm EN EL VÉRTICE SUPERIOR IZQUIERDO
+    // =========================================================================
+    async function generarPdfConfirmacion(datos, blobFirma) {
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const page = pdfDoc.addPage([595.28, 841.89]); // A4 (595.28 x 841.89 pt)
+      const { width, height } = page.getSize();
+
+      const fontRegular = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+      const fontBold = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+      const pngFirma = await pdfDoc.embedPng(await blobFirma.arrayBuffer());
+
+      // 1. Cargar Logo oficial
+      let imgLogo = null;
+      const rutasLogo = ['logo.png', 'logo_ceco.png', 'logo.jpg', '../logo.png'];
+      for (const r of rutasLogo) {
+        try {
+          const resp = await fetch(r);
+          if (resp.ok) {
+            const bytes = await resp.arrayBuffer();
+            imgLogo = (r.endsWith('.jpg') || r.endsWith('.jpeg'))
+              ? await pdfDoc.embedJpg(bytes)
+              : await pdfDoc.embedPng(bytes);
+            break;
+          }
+        } catch (e) {}
+      }
+
+      const margenX = 45;
+      let y = height - 42;
+
+      // Medida exacta de 1.5 cm = 42.5 pt
+      const tamLogoPt = 42.5;
+
+      if (imgLogo) {
+        page.drawImage(imgLogo, {
+          x: margenX,
+          y: y - 26,
+          width: tamLogoPt,
+          height: tamLogoPt
+        });
+        page.drawText('CECO S.A.', { x: margenX + tamLogoPt + 10, y: y, size: 16, font: fontBold, color: PDFLib.rgb(0.08, 0.38, 0.22) });
+        page.drawText('CONFIRMACION DE PUESTO', { x: margenX + tamLogoPt + 10, y: y - 14, size: 10.5, font: fontBold, color: PDFLib.rgb(0.15, 0.15, 0.15) });
+      } else {
+        page.drawText('CECO S.A.', { x: margenX, y: y, size: 18, font: fontBold, color: PDFLib.rgb(0.08, 0.38, 0.22) });
+        page.drawText('CONFIRMACION DE PUESTO', { x: margenX, y: y - 14, size: 11, font: fontBold, color: PDFLib.rgb(0.15, 0.15, 0.15) });
+      }
+
+      // Recuadro superior derecho: Nº Legajo
+      const anchoBadge = 115;
+      const altoBadge = 30;
+      const xBadge = width - margenX - anchoBadge;
+      page.drawRectangle({
+        x: xBadge,
+        y: y - 18,
+        width: anchoBadge,
+        height: altoBadge,
+        borderColor: PDFLib.rgb(0.75, 0.78, 0.82),
+        borderWidth: 1,
+        color: PDFLib.rgb(0.96, 0.97, 0.98)
+      });
+      page.drawText('Nº Legajo:', { x: xBadge + 10, y: y - 2, size: 8, font: fontRegular, color: PDFLib.rgb(0.4, 0.45, 0.5) });
+      page.drawText(String(datos.legajo), { x: xBadge + 55, y: y - 4, size: 12, font: fontBold, color: PDFLib.rgb(0.1, 0.15, 0.2) });
+
+      y -= 44;
+
+      // Línea verde institucional
+      page.drawLine({
+        start: { x: margenX, y: y },
+        end: { x: width - margenX, y: y },
+        thickness: 1.5,
+        color: PDFLib.rgb(0.12, 0.42, 0.28)
+      });
+      y -= 14;
+
+      // Párrafo de la Convocatoria Legal Justificado
+      function renderBloqueTexto(texto, curY, maxChars = 100, fontSize = 7.8, interlineado = 10.2) {
+        if (!texto) return curY;
+        const limpio = texto.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        const palabras = limpio.split(' ');
+        let linea = '';
+
+        for (const pal of palabras) {
+          const test = linea ? `${linea} ${pal}` : pal;
+          if (test.length > maxChars) {
+            page.drawText(linea, { x: margenX, y: curY, size: fontSize, font: fontRegular, color: PDFLib.rgb(0.2, 0.22, 0.25) });
+            curY -= interlineado;
+            linea = pal;
+          } else {
+            linea = test;
+          }
+        }
+        if (linea) {
+          page.drawText(linea, { x: margenX, y: curY, size: fontSize, font: fontRegular, color: PDFLib.rgb(0.2, 0.22, 0.25) });
+          curY -= interlineado;
+        }
+        return curY;
+      }
+
+      y = renderBloqueTexto(plantillaTextoPlano, y, 102, 7.8, 10.5);
+      y -= 8;
+
+      // Datos del Trabajador
+      const hoy = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+      page.drawText(`Fecha: CHIMPAY R.N. ${hoy}`, { x: margenX, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.15, 0.15, 0.15) });
+      y -= 15;
+
+      page.drawText('Nombre y Apellido:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.apellido_nombre), { x: margenX + 85, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+
+      page.drawText('Nº de DNI:', { x: 330, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.dni), { x: 385, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 13;
+
+      page.drawText('Sector:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.sector || 'COSECHA'), { x: margenX + 85, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 13;
+
+      page.drawText('Domicilio Declarado:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.domicilio_legal || '-'), { x: margenX + 90, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+
+      page.drawText('LOCALIDAD:', { x: 330, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(`${datos.localidad_legal} (${datos.provincia_legal || 'RIO NEGRO'})`, { x: 395, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 13;
+
+      page.drawText('Domicilio en la Zona:', { x: margenX, y: y, size: 8, font: fontBold, color: PDFLib.rgb(0.08, 0.35, 0.2) });
+      page.drawText(String(datos.domicilio_zona || '-'), { x: margenX + 105, y: y, size: 8, font: fontBold, color: PDFLib.rgb(0.08, 0.35, 0.2) });
+
+      page.drawText('Localidad Río Negro:', { x: 330, y: y, size: 8, font: fontBold, color: PDFLib.rgb(0.08, 0.35, 0.2) });
+      page.drawText(String(datos.localidad_zona || '-'), { x: 430, y: y, size: 8, font: fontBold, color: PDFLib.rgb(0.08, 0.35, 0.2) });
+      y -= 13;
+
+      page.drawText('Teléfono particular:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.telefono_particular || '-'), { x: margenX + 95, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+
+      page.drawText('Teléfono nuevo:', { x: 330, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(String(datos.telefono_nuevo || '-'), { x: 405, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 13;
+
+      page.drawText('Teléfono alternativo (Familiar/Vecino):', { x: margenX, y: y, size: 8, font: fontBold, color: PDFLib.rgb(0.2, 0.2, 0.2) });
+      page.drawText(String(datos.telefono_alternativo || '-'), { x: margenX + 175, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 13;
+
+      page.drawText('Presentó Carnet de Renatre / Manip. Alimento:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(datos.carnet_renatre ? 'SI' : 'NO', { x: margenX + 215, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 16;
+
+      // Aviso de pagos Banco Patagonia
+      const txtBancoAviso = "Con el fin de agilizar y dar mayor seguridad a Usted trabajador la empresa le realizará depósitos anticipados aproximadamente cada quince días, con importe cercanos al valor de lo trabajado, para ello deberá tener activa su plástico que se le fue entregado años anteriores, caso contrario o de extravío deberá regularizar su situación en la sucursal del Banco Patagonia Choele Choel o llamando al 0810-888-8500.";
+      y = renderBloqueTexto(txtBancoAviso, y, 102, 7.4, 9.8);
+      y -= 6;
+
+      page.drawText('Declaro contar Tarjeta Patagonia entregada por CECO:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(datos.tarjeta_patagonia ? 'SI' : 'NO', { x: margenX + 250, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 12;
+
+      page.drawText('Declaro que la misma se encuentra Activa:', { x: margenX, y: y, size: 8, font: fontRegular, color: PDFLib.rgb(0.35, 0.4, 0.45) });
+      page.drawText(datos.tarjeta_activa ? 'SI' : 'NO', { x: margenX + 200, y: y, size: 8.5, font: fontBold, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+      y -= 12;
+
+      page.drawText(`Entidad Bancaria: ${datos.entidad_bancaria || 'BANCO PATAGONIA'}   |   CBU: ${datos.cbu || '-'}   |   Cuenta Propia: ${datos.cuenta_propia ? 'SI' : 'NO'}`, {
+        x: margenX,
+        y: y,
+        size: 7.8,
+        font: fontRegular,
+        color: PDFLib.rgb(0.2, 0.2, 0.2)
+      });
+
+      // Casillero de Firma
+      const anchoFirma = 140;
+      const altoFirma = 52;
+      const xFirma = width - margenX - anchoFirma - 15;
+      const yFirmaLinea = 75;
+
+      page.drawImage(pngFirma, {
+        x: xFirma,
+        y: yFirmaLinea + 2,
+        width: anchoFirma,
+        height: altoFirma
+      });
+
+      page.drawLine({
+        start: { x: xFirma - 15, y: yFirmaLinea },
+        end: { x: xFirma + anchoFirma + 15, y: yFirmaLinea },
+        thickness: 1,
+        color: PDFLib.rgb(0.3, 0.3, 0.3)
+      });
+
+      page.drawText('FIRMA DEL TRABAJADOR', {
+        x: xFirma + 15,
+        y: yFirmaLinea - 11,
+        size: 8,
+        font: fontBold,
+        color: PDFLib.rgb(0.2, 0.2, 0.2)
+      });
+
+      // Pie Institucional Oficial
+      const pie1 = "CECO S.A. © | Establecimiento: Ruta Nacional 22 Km. 1050 | Chimpay | Río Negro | Patagonia Argentina";
+      const pie2 = "Administración: San Martín 85 | 1° Piso Neuquén Capital";
+
+      page.drawLine({
+        start: { x: margenX, y: 38 },
+        end: { x: width - margenX, y: 38 },
+        thickness: 0.6,
+        color: PDFLib.rgb(0.75, 0.78, 0.82)
+      });
+
+      page.drawText(pie1, { x: margenX, y: 26, size: 6.8, font: fontRegular, color: PDFLib.rgb(0.45, 0.5, 0.55) });
+      page.drawText(pie2, { x: margenX, y: 17, size: 6.8, font: fontRegular, color: PDFLib.rgb(0.45, 0.5, 0.55) });
+
+      return await pdfDoc.save();
+    }
+
+    // =========================================================================
+    // GUARDAR CONFIRMACIÓN
+    // =========================================================================
+    async function guardarDeclaracion(e) {
+      e.preventDefault();
+
+      if (!trazoRealizado) {
+        return mostrarAvisoSoft("Firma Requerida", "Por favor realizá tu firma en el recuadro antes de continuar.", "✍️");
+      }
+
+      const domZona = document.getElementById('txtDomicilioZona').value.trim();
+      const locZona = document.getElementById('txtLocalidadZona').value.trim();
+
+      if (!esDeRioNegro && (!domZona || !locZona)) {
+        return mostrarAvisoSoft(
+          "Domicilio en Zona Requerido",
+          "Al residir fuera de Río Negro, es obligatorio declarar el domicilio o chacra y localidad donde te alojarás durante la cosecha.",
+          "📍"
+        );
+      }
+
+      const telAlt = document.getElementById('txtTelAlternativo').value.trim();
+      if (!telAlt) {
+        return mostrarAvisoSoft("Contacto Requerido", "Es obligatorio indicar un teléfono alternativo para notificaciones.", "📞");
+      }
+
+      const btn = document.getElementById('btnGuardar');
+      btn.disabled = true;
+      btn.innerText = "GENERANDO Y GUARDANDO...";
+
+      try {
+        const temporada = TEMPORADA_ACTUAL;
+        const blobFirma = await new Promise(res => canvas.toBlob(res, 'image/png'));
+
+        const domFinal = document.getElementById('txtDomicilio').value.trim();
+        const locFinal = document.getElementById('txtLocalidad').value.trim();
+        const cpFinal = document.getElementById('txtCP').value.trim();
+
+        const datosCompletos = {
+          legajo: parseInt(operario.legajo, 10),
+          dni: parseInt(operario.dni, 10),
+          temporada: temporada,
+          apellido_nombre: `${operario.apellido || ''}, ${operario.nombre || ''}`.trim(),
+          sector: "COSECHA",
+          domicilio_legal: domFinal,
+          localidad_legal: locFinal,
+          provincia_legal: document.getElementById('txtProvincia').value.trim(),
+          domicilio_zona: domZona || domFinal,
+          localidad_zona: locZona || locFinal,
+          telefono_particular: document.getElementById('txtTelRegistrado').value,
+          telefono_nuevo: document.getElementById('txtTelNuevo').value.trim() || null,
+          telefono_alternativo: telAlt,
+          carnet_renatre: respuestasToggle.carnet,
+          tarjeta_patagonia: respuestasToggle.tarjetaCeco,
+          tarjeta_activa: respuestasToggle.tarjetaActiva,
+          entidad_bancaria: document.getElementById('txtBanco').value.trim(),
+          cbu: document.getElementById('txtCbu').value.trim() || null,
+          cuenta_propia: respuestasToggle.cuentaPropia
+        };
+
+        // 1. Generar el PDF oficial firmado
+        const pdfBytes = await generarPdfConfirmacion(datosCompletos, blobFirma);
+        const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+        // 2. Subir firma y PDF a Supabase Storage
+        const rutaPdfStorage = `temporada_${temporada}/confirmaciones/${operario.dni}_confirmacion.pdf`;
+        const rutaFirmaStorage = `temporada_${temporada}/firmas/${operario.dni}_firma.png`;
+
+        await supabaseClient.storage.from('recibos').upload(rutaFirmaStorage, blobFirma, { contentType: 'image/png', upsert: true });
+        await supabaseClient.storage.from('recibos').upload(rutaPdfStorage, pdfBlob, { contentType: 'application/pdf', upsert: true });
+
+        // 3. Guardar o actualizar en public.confirmaciones_temporada
+        const payloadConf = {
+          legajo: datosCompletos.legajo,
+          dni: datosCompletos.dni,
+          temporada: temporada,
+          apellido_nombre: datosCompletos.apellido_nombre,
+          telefono_particular: datosCompletos.telefono_particular,
+          telefono_alternativo: datosCompletos.telefono_alternativo,
+          telefono_nuevo: datosCompletos.telefono_nuevo,
+          carnet_renatre: Boolean(datosCompletos.carnet_renatre),
+          tarjeta_patagonia: Boolean(datosCompletos.tarjeta_patagonia),
+          tarjeta_activa: Boolean(datosCompletos.tarjeta_activa),
+          entidad_bancaria: datosCompletos.entidad_bancaria,
+          cbu: datosCompletos.cbu,
+          cuenta_propia: Boolean(datosCompletos.cuenta_propia),
+          firma_path: rutaFirmaStorage,
+          pdf_path: rutaPdfStorage,
+          fecha_confirmacion: new Date().toISOString()
+        };
+
+        const { error: errConf } = await supabaseClient
+          .from('confirmaciones_temporada')
+          .upsert([payloadConf], { onConflict: 'dni,temporada' });
+
+        if (errConf) throw errConf;
+
+        // 4. Si el operario activó la actualización de domicilio, reflejarlo en nomina_personal_tempo
+        if (domicilioModificado) {
+          await supabaseClient
+            .from('nomina_personal_tempo')
+            .update({
+              domicilio: domFinal,
+              localidad: locFinal,
+              Cod_Postal: cpFinal ? parseInt(cpFinal, 10) : null,
+              domicilio_actualizado: true,
+              fecha_act_domicilio: new Date().toISOString()
+            })
+            .eq('legajo', datosCompletos.legajo)
+            .eq('dni', datosCompletos.dni)
+            .eq('temporada', temporada);
+        }
+
+        // 5. Descarga automática al dispositivo
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const linkDescarga = document.createElement('a');
+        linkDescarga.href = blobUrl;
+        linkDescarga.download = `Confirmacion_${operario.legajo}_${operario.dni}.pdf`;
+        document.body.appendChild(linkDescarga);
+        linkDescarga.click();
+        document.body.removeChild(linkDescarga);
+
+        // 6. Modal de éxito
+        const lnkModal = document.getElementById('lnkDescargaManual');
+        lnkModal.href = blobUrl;
+        lnkModal.download = `Confirmacion_${operario.legajo}_${operario.dni}.pdf`;
+        document.getElementById('modalExito').style.display = 'flex';
+
+      } catch (err) {
+        console.error("Error al procesar:", err);
+        mostrarAvisoSoft("Error", "No se pudo registrar la confirmación: " + (err.message || err), "❌");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "CONFIRMAR Y DESCARGAR CONSTANCIA";
+      }
+    }
+
+    function cerrarYSalir() {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
