@@ -339,6 +339,59 @@
   </div>
 
   <script>
+    // 1. Bloquear atajos de teclado
+  window.addEventListener('keydown', function(e) {
+    var isCtrlOrCmd = e.ctrlKey || e.metaKey;
+    var key = e.key ? e.key.toLowerCase() : '';
+    
+    // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    if (e.key === 'F12' || 
+       (isCtrlOrCmd && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) ||
+       (isCtrlOrCmd && key === 'u')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  // 2. Bloquear Clic Derecho (Menú Contextual)
+  window.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  }, true);
+
+  // 3. Detección Inteligente de DevTools Abiertas
+  function detectDevTools() {
+    var widthThreshold = window.outerWidth - window.innerWidth > 160;
+    var heightThreshold = window.outerHeight - window.innerHeight > 160;
+    
+    // Si la consola está acoplada al costado o abajo
+    if (widthThreshold || heightThreshold) {
+      bloquearPantalla();
+    }
+  }
+
+  // 4. Trampa Anti-Debugging (Pausa la ejecución si la consola se abre)
+  setInterval(function() {
+    var startTime = performance.now();
+    debugger;
+    var endTime = performance.now();
+    if (endTime - startTime > 100) {
+      bloquearPantalla();
+    }
+    detectDevTools();
+  }, 500);
+
+  function bloquearPantalla() {
+    document.body.innerHTML = `
+      <div style="display:flex; height:100vh; align-items:center; justify-content:center; background-color:#F4F6F3; font-family:sans-serif;">
+        <div style="text-align:center; padding:30px; background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <h2 style="color:#991B1B; margin-bottom:10px;">Acceso restringido</h2>
+          <p style="color:#4B5563;">Por razones de seguridad, cerrá las herramientas de desarrollo para continuar.</p>
+        </div>
+      </div>
+    `;
+  }
+
     const TEMPORADA_ACTUAL = 2026;
     const SUPABASE_URL = 'https://zsgqlmfzidazdtpgmuna.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZ3FsbWZ6aWRhemR0cGdtdW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTY3NDIsImV4cCI6MjA5Nzc5Mjc0Mn0.Y9dDHLdQGIOcVS3JaYnbUHWlwul4uiEkkb7udeoF-b0';
