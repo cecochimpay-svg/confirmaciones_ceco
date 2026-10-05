@@ -187,6 +187,66 @@
       color: #FFFFFF;
     }
 
+    /* ACA ES LO NUEVO: Estilos para el subidor de CV */
+    .cv-upload-container {
+      background: #F8FAFC;
+      border: 1.5px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      text-align: center;
+      transition: border-color 0.2s ease;
+    }
+
+    .cv-upload-container:hover {
+      border-color: var(--color-plant);
+    }
+
+    .btn-adjuntar-cv {
+      background: #FFFFFF;
+      color: var(--color-plant-dark);
+      border: 1.5px solid var(--color-plant);
+      padding: 9px 18px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-adjuntar-cv:hover {
+      background: var(--color-plant-soft);
+    }
+
+    .cv-info-badge {
+      display: none;
+      background: var(--color-plant-soft);
+      border: 1px solid var(--color-plant);
+      color: var(--color-plant-dark);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-quitar-cv {
+      background: none;
+      border: none;
+      color: #DC2626;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 0;
+    }
+
     .btn-enviar {
       background: var(--color-plant);
       color: #FFFFFF;
@@ -331,6 +391,30 @@
         </div>
       </div>
 
+      <!-- ACA ES LO NUEVO: Sección Subida de Currículum Vitae (Storage / postulaciones) -->
+      <div class="seccion-titulo">4. Currículum Vitae (Opcional)</div>
+      <div class="cv-upload-container">
+        <!-- Input de archivo oculto -->
+        <input 
+          type="file" 
+          id="fileCv" 
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" 
+          style="display: none;" 
+          onchange="manejarSeleccionCv(this)" 
+        />
+        
+        <button type="button" class="btn-adjuntar-cv" onclick="document.getElementById('fileCv').click()">
+          📄 Adjuntar Curriculum Vitae (PDF o Imagen)
+        </button>
+
+        <span style="font-size: 11px; color: var(--color-text-secondary);">Formatos soportados: PDF, Word o fotos (Máx. 10MB)</span>
+
+        <div class="cv-info-badge" id="badgeCvInfo">
+          <span id="lblCvNombre">archivo.pdf</span>
+          <button type="button" class="btn-quitar-cv" onclick="quitarCvSeleccionado()" title="Quitar archivo">✕</button>
+        </div>
+      </div>
+
       <div style="margin-top: 18px;">
         <button type="submit" class="btn-enviar" id="btnGuardar">ENVIAR POSTULACIÓN LABORAL</button>
         <button type="button" class="btn-cancelar" onclick="window.location.href='index.html'">Volver al Inicio</button>
@@ -346,6 +430,7 @@
 
     let temporadaActual = 2026;
     let respuestasToggle = { escalera: false, carnet: false };
+    let archivoCvSeleccionado = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       const dniGuardado = sessionStorage.getItem('postulante_dni');
@@ -382,11 +467,37 @@
       document.getElementById('txtEdad').value = edad >= 0 ? edad : 0;
     }
 
+    // ACA ES LO NUEVO: Manejo visual de selección de archivo CV
+    function manejarSeleccionCv(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Validación de tamaño (máximo 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          alert("El archivo no puede superar los 10MB.");
+          input.value = "";
+          return;
+        }
+
+        archivoCvSeleccionado = file;
+        document.getElementById('lblCvNombre').innerText = `📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        document.getElementById('badgeCvInfo').style.display = 'inline-flex';
+      }
+    }
+
+    // ACA ES LO NUEVO: Quitar archivo seleccionado
+    function quitarCvSeleccionado() {
+      archivoCvSeleccionado = null;
+      document.getElementById('fileCv').value = "";
+      document.getElementById('badgeCvInfo').style.display = 'none';
+    }
+
     async function enviarPostulacion(e) {
       e.preventDefault();
 
       const btn = document.getElementById('btnGuardar');
       const edadVal = parseInt(document.getElementById('txtEdad').value, 10);
+      const dniVal = parseInt(document.getElementById('txtDni').value, 10);
 
       if (isNaN(edadVal) || edadVal < 18) {
         return alert("Debés ser mayor de 18 años para postularte a la temporada.");
@@ -395,27 +506,52 @@
       btn.disabled = true;
       btn.innerText = "REGISTRANDO POSTULACIÓN...";
 
-      const payload = {
-        temporada: temporadaActual,
-        dni: parseInt(document.getElementById('txtDni').value, 10),
-        cuil: document.getElementById('txtCuil').value.trim(),
-        apellido: document.getElementById('txtApellido').value.trim().toUpperCase(),
-        nombre: document.getElementById('txtNombre').value.trim().toUpperCase(),
-        fecha_nac: document.getElementById('txtFechaNac').value,
-        edad: edadVal,
-        sexo: document.getElementById('selSexo').value,
-        telefono: document.getElementById('txtTelefono').value.trim(),
-        domicilio_origen: document.getElementById('txtDomicilioOrigen').value.trim() || null,
-        localidad: document.getElementById('txtLocalidad').value.trim(),
-        provincia: document.getElementById('txtProvincia').value.trim(),
-        domicilio_localidad_zona: document.getElementById('txtZona').value.trim(),
-        experiencia_laboral: document.getElementById('txtExperiencia').value.trim() || 'Sin experiencia previa declarada',
-        uso_escalera: respuestasToggle.escalera,
-        carnet_alimentos: respuestasToggle.carnet,
-        estado: 'PENDIENTE'
-      };
+      let rutaCvStorage = null;
 
       try {
+        // ACA ES LO NUEVO: Subir CV a storage/postulaciones si fue seleccionado
+        if (archivoCvSeleccionado) {
+          btn.innerText = "SUBIENDO CURRICULUM...";
+          const extension = archivoCvSeleccionado.name.split('.').pop();
+          // Ruta dentro del bucket postulaciones: CV_{DNI}_{TIMESTAMP}.{ext}
+          const nombreArchivoStorage = `CV_${dniVal}_${Date.now()}.${extension}`;
+
+          const { data: dataUpload, error: errorUpload } = await supabaseClient.storage
+            .from('postulaciones')
+            .upload(nombreArchivoStorage, archivoCvSeleccionado, {
+              cacheControl: '3600',
+              upsert: true
+            });
+
+          if (errorUpload) throw new Error("Error al subir el CV al servidor: " + errorUpload.message);
+
+          // Guardamos la ruta del archivo subido en storage
+          rutaCvStorage = dataUpload?.path || nombreArchivoStorage;
+        }
+
+        btn.innerText = "GUARDANDO FICHA...";
+
+        const payload = {
+          temporada: temporadaActual,
+          dni: dniVal,
+          cuil: document.getElementById('txtCuil').value.trim(),
+          apellido: document.getElementById('txtApellido').value.trim().toUpperCase(),
+          nombre: document.getElementById('txtNombre').value.trim().toUpperCase(),
+          fecha_nac: document.getElementById('txtFechaNac').value,
+          edad: edadVal,
+          sexo: document.getElementById('selSexo').value,
+          telefono: document.getElementById('txtTelefono').value.trim(),
+          domicilio_origen: document.getElementById('txtDomicilioOrigen').value.trim() || null,
+          localidad: document.getElementById('txtLocalidad').value.trim(),
+          provincia: document.getElementById('txtProvincia').value.trim(),
+          domicilio_localidad_zona: document.getElementById('txtZona').value.trim(),
+          experiencia_laboral: document.getElementById('txtExperiencia').value.trim() || 'Sin experiencia previa declarada',
+          uso_escalera: respuestasToggle.escalera,
+          carnet_alimentos: respuestasToggle.carnet,
+          cv_url: rutaCvStorage, // ACA ES LO NUEVO: guarda la referencia del CV en la tabla
+          estado: 'PENDIENTE'
+        };
+
         const { error } = await supabaseClient
           .from('postulaciones_temporada')
           .upsert([payload], { onConflict: 'dni,temporada' });
